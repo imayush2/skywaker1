@@ -27,6 +27,13 @@ dbConnect();
 // API routes
 app.use("/api/auth", authRoute);
 
+app.get("/", (req, res) => {
+  res.send({
+    activeStatus: true,
+    error: false,
+  });
+});
+
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
