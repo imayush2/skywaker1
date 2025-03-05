@@ -12,7 +12,7 @@ const port = process.env.PORT || 4100; // Default to 4100 if PORT is not defined
 // CORS Configuration
 const allowedOrigins = [
   "http://localhost:3000", // Local development URL
-  "https://whimsical-tapioca-ce1849.netlify.app", // Production front-end URL
+  "https://67c8460b077a7d3102740c0a--whimsical-tapioca-ce1849.netlify.app", // Production front-end URL
 ];
 
 const corsOptions = {
@@ -25,6 +25,8 @@ const corsOptions = {
     }
   },
   credentials: true, // Allow sending of cookies (credentials)
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Allow specific HTTP methods
+  allowedHeaders: ["Content-Type", "Authorization"], // Specify allowed headers
 };
 
 app.use(cors(corsOptions)); // Apply the CORS middleware with the updated options
