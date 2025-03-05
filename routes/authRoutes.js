@@ -3,6 +3,7 @@ import { register, login, logout } from "../controllers/authControllers.js";
 
 const authRoute = express.Router();
 
+// routes
 authRoute.post("/register", register);
 authRoute.post("/login", login);
 authRoute.post("/logout", logout);
