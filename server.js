@@ -12,7 +12,7 @@ const port = process.env.PORT;
 // Update CORS configuration
 const corsOptions = {
   origin:
-    "https://67c93c87cd6825b9cf668e4b--beautiful-faloodeh-fb0219.netlify.app", // Change this to the correct frontend URL
+    "https://67c945ceb59fabc547398f49--tourmaline-fairy-89f1f6.netlify.app", // Change this to the correct frontend URL
   credentials: true, // Allow cookies to be sent
   methods: ["GET", "POST", "PUT", "DELETE"], // Allowed HTTP methods
 };
