@@ -7,47 +7,29 @@ import authRoute from "./routes/authRoutes.js";
 config({ path: "./.env" });
 
 const app = express();
-const port = process.env.PORT || 4100; // Default to 4100 if PORT is not defined
+const port = process.env.PORT;
 
-// CORS Configuration
-const allowedOrigins = [
-  "http://localhost:3000", // Local development URL
-  "https://67c8460b077a7d3102740c0a--whimsical-tapioca-ce1849.netlify.app", // Production front-end URL
-];
-
+// Update CORS configuration
 const corsOptions = {
-  origin: function (origin, callback) {
-    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
-      // Allow the request if origin is in the allowedOrigins list, or if there's no origin (e.g., server-side request)
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  credentials: true, // Allow sending of cookies (credentials)
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Allow specific HTTP methods
-  allowedHeaders: ["Content-Type", "Authorization"], // Specify allowed headers
+  origin: "https://67c936515cf725c87e227a05--mellow-llama-2ed544.netlify.app", // Change this to the correct frontend URL
+  credentials: true, // Allow cookies to be sent
+  methods: ["GET", "POST", "PUT", "DELETE"], // Allowed HTTP methods
 };
-
-app.use(cors(corsOptions)); // Apply the CORS middleware with the updated options
 
 app.use(express.json());
 app.use(cookieParser());
+app.use(cors(corsOptions)); // Apply the CORS middleware with the updated options
 
 // Database connection
 import dbConnect from "./config/mongondb.js";
 dbConnect();
 
-// API routes
+// API endpoints
+app.get("/", (req, res) => {
+  res.send("this is home page.");
+});
 app.use("/api/auth", authRoute);
 
-app.get("/", (req, res) => {
-  res.send({
-    activeStatus: true,
-    error: false,
-  });
-});
-
 app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+  console.log(`server is listening on port ${port}`);
 });
