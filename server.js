@@ -11,8 +11,7 @@ const port = process.env.PORT;
 
 // Update CORS configuration
 const corsOptions = {
-  origin:
-    "https://67c93c87cd6825b9cf668e4b--beautiful-faloodeh-fb0219.netlify.app", // Change this to the correct frontend URL
+  origin: "http://localhost:3000", // Change this to the correct frontend URL
   credentials: true, // Allow cookies to be sent
   methods: ["GET", "POST", "PUT", "DELETE"], // Allowed HTTP methods
 };
@@ -23,12 +22,27 @@ app.use(cors(corsOptions)); // Apply the CORS middleware with the updated option
 
 // Database connection
 import dbConnect from "./config/mongondb.js";
+// import mysqlConnect from "./config/mysqlConnect.js";
 dbConnect();
+// mysqlConnect;
 
 // API endpoints
 app.get("/", (req, res) => {
   res.send("this is home page.");
 });
+
+// Example route to fetch data from MySQL
+app.get("/api/data", (req, res) => {
+  const query = "SELECT * FROM your_table_name"; // Replace with your MySQL table name
+  mysqlConnect.query(query, (err, results) => {
+    if (err) {
+      res.status(500).json({ error: "Failed to retrieve data from MySQL" });
+    } else {
+      res.json(results); // Send MySQL data as JSON
+    }
+  });
+});
+
 app.use("/api/auth", authRoute);
 
 app.listen(port, () => {
