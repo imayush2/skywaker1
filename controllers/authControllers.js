@@ -1,33 +1,56 @@
 import userModel from "../models/userModel.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { Sequelize } from "sequelize";
 import { config } from "dotenv";
 config({ path: "../.env" });
 
 // new user register controller
 export const register = async (req, res) => {
-  const { name, email, password, role } = req.body;
+  const { name, email, password } = req.body; // Removed 'role'
 
-  if (!name || !email || !password || !role) {
+  // Ensure all required fields are provided
+  if (!name || !email || !password) {
     return res.json({ success: false, message: "Missing details" });
   }
 
   try {
-    const existingUser = await userModel.findOne({ email });
+    const trimmedEmail = email.trim(); // Trim spaces around email
+    console.log("Checking for existing user with email:", trimmedEmail);
+
+    // Check if user already exists using case-insensitive comparison for MySQL
+    const existingUser = await userModel.findOne({
+      where: Sequelize.where(
+        Sequelize.fn("LOWER", Sequelize.col("email")),
+        Sequelize.fn("LOWER", trimmedEmail)
+      ),
+    });
 
     if (existingUser) {
       return res.json({ success: false, message: "User already exists" });
     }
 
+    // Hash the password before saving it
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = new userModel({ name, email, password: hashedPassword, role }); // Add role to the new user
-    await user.save();
-
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "7d",
+    // Create new user, no 'role' field required
+    const user = await userModel.create({
+      name,
+      email: trimmedEmail,
+      password: hashedPassword,
+      // No role field is included now
     });
 
+    // Create JWT token without 'role' field
+    const token = jwt.sign(
+      { id: user.id }, // Removed 'role' from the JWT payload
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "7d",
+      }
+    );
+
+    // Set token in cookies
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -37,14 +60,14 @@ export const register = async (req, res) => {
 
     return res.json({ success: true });
   } catch (error) {
+    console.error(error);
     res.json({ success: false, message: error.message });
   }
 };
 
-//login
 // login controller
 export const login = async (req, res) => {
-  const { email, password, role } = req.body;
+  const { email, password } = req.body;
 
   if (!email || !password) {
     return res.json({
@@ -54,31 +77,39 @@ export const login = async (req, res) => {
   }
 
   try {
-    const user = await userModel.findOne({ email });
+    // Ensure email is trimmed and lowercase
+    const trimmedEmail = email.trim().toLowerCase();
 
+    // Find the user in the database with case-insensitive email comparison
+    const user = await userModel.findOne({
+      where: Sequelize.where(
+        Sequelize.fn("LOWER", Sequelize.col("email")),
+        Sequelize.fn("LOWER", trimmedEmail)
+      ),
+    });
+
+    // Check if user exists
     if (!user) {
       return res.json({ success: false, message: "Invalid email" });
     }
 
-    // Validate the role in the request with the role of the user
-    if (user.role !== role) {
-      return res.json({ success: false, message: "Role mismatch" });
-    }
-
+    // Compare the provided password with the stored hashed password
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
       return res.json({ success: false, message: "Invalid password" });
     }
 
+    // Create JWT token without 'role' field
     const token = jwt.sign(
-      { id: user._id, role: user.role },
+      { id: user.id }, // Removed 'role' from the JWT payload
       process.env.JWT_SECRET,
       {
         expiresIn: "7d",
       }
     );
 
+    // Set token in cookies
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -88,13 +119,12 @@ export const login = async (req, res) => {
 
     return res.json({ success: true, message: "Login successful" });
   } catch (error) {
-    console.error(error);
+    console.error("Error in login:", error);
     return res.json({ success: false, message: error.message });
   }
 };
 
-//logout controller
-
+// logout controller
 export const logout = async (req, res) => {
   try {
     res.clearCookie("token", {

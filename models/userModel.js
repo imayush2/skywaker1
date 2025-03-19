@@ -1,17 +1,31 @@
-import mongoose from "mongoose";
+import { DataTypes } from "sequelize";
+import { sequelize } from "../config/dbConnect.js"; // Ensure this path is correct
 
-const userSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  role: { type: String, enum: ["user", "admin"], default: "user" }, // Add the role field
-  verifyOtp: { type: String, default: "" },
-  verifyOtpExpireAt: { type: Number, default: 0 },
-  isAccountVerified: { type: Boolean, default: false },
-  resetOtp: { type: String, default: "" },
-  resetOtpExpireAt: { type: Number, default: 0 },
-});
-
-const userModel = mongoose.model.user || mongoose.model("user", userSchema);
+const userModel = sequelize.define(
+  "users",
+  {
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
+    password: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    // role: {
+    //   type: DataTypes.STRING,
+    //   allowNull: true, // Make role optional
+    //   defaultValue: "user", // Default value is 'user'
+    // },
+  },
+  {
+    timestamps: false, // Disable automatic createdAt/updatedAt columns
+  }
+);
 
 export default userModel;
