@@ -8,7 +8,7 @@ import { dbConnect } from "./config/dbConnect.js"; // Import the dbConnect funct
 config(); // Load environment variables from .env file
 
 const app = express();
-const port = process.env.DB_PORT || 5000; // Use process.env.PORT or default to 5000 if not set
+const port = 5001; // Use process.env.PORT or default to 5000 if not set
 
 // Apply CORS settings
 const corsOptions = {
