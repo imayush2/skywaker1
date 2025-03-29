@@ -4,6 +4,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import authRoute from "./routes/authRoutes.js"; // Import the auth routes
 import { dbConnect } from "./config/dbConnect.js"; // Import the dbConnect function
+import { trialData } from "./controllers/trialData.js";
 
 config(); // Load environment variables from .env file
 
@@ -31,6 +32,7 @@ app.get("/", (req, res) => {
 
 // Use the auth routes for handling authentication
 app.use("/api/auth", authRoute);
+app.use("/api/trial", trialData);
 
 // Start the server and listen on the defined port
 app.listen(port, () => {
